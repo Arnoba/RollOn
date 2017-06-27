@@ -46,6 +46,6 @@ public class Player : MonoBehaviour {
         float targetVelocityX = input.x * moveSpeed;
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (currentCharacter.getCollisions().below)?accelerationTimeGrounded:accelerationTimeAirborne);
         velocity.y += gravity * Time.deltaTime;
-        currentCharacter.movePlayer(velocity * Time.deltaTime);
+        currentCharacter.movePlayer(velocity * Time.deltaTime, false);
 	}
 }

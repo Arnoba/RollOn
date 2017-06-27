@@ -10,13 +10,18 @@ public class CubeCharacter : RayCastController, ICharacter
     private bool initJump = true;
     private GameObject nextCharacter;
 
-    private float maxClimbAngle = 120;
-    private float maxDescentAngle = 100;
+    private float maxClimbAngle = 80;
+    private float maxDescentAngle = 75;
 
     public CollisionInfo collisions;
 
+    public override void Start()
+    {
+        base.Start();
+        //start in super class raycastcontroller followed  by mine
+    }
 
-    public void movePlayer(Vector3 velocity)
+    public void movePlayer(Vector3 velocity, bool standingOnPlatform = false)
     {
         collisions.reset();
 
@@ -31,8 +36,13 @@ public class CubeCharacter : RayCastController, ICharacter
             verticalCollision(ref velocity);
 
 
-        transform.Translate(velocity);
+        //transform.Translate(velocity);
+        transform.parent.transform.Translate(velocity);
         //rb.AddForce(new Vector3(input, 0, 0), ForceMode.VelocityChange);
+        if (standingOnPlatform)
+        {
+            collisions.below = true;
+        }
     }
 
     public void verticalCollision(ref Vector3 velocity)
@@ -50,6 +60,11 @@ public class CubeCharacter : RayCastController, ICharacter
 
             if (Physics.Raycast(rayOrigin, (Vector3.up * directionY), out hit, rayLength, collisionMask))
             {
+
+                if(hit.distance == 0)
+                {
+                    continue;
+                }
 
                 velocity.y = (hit.distance - skinWidth) * directionY;
                 rayLength = hit.distance;
@@ -123,7 +138,7 @@ public class CubeCharacter : RayCastController, ICharacter
                 if (!collisions.climbingSlope || angle > maxClimbAngle)
                 {
                     velocity.x = (hit.distance - skinWidth) * directionX;
-                    rayLength = hit.distance;
+                    rayLength = hit.distance + skinWidth;
 
                     if (collisions.climbingSlope)
                     {
@@ -213,16 +228,4 @@ public class CubeCharacter : RayCastController, ICharacter
             //doubleJump = true;
         }
     }
-
-    /*public struct CollisionInfo
-    {
-        public bool above, below;
-        public bool left, right;
-
-        public void reset()
-        {
-            above = below = false;
-            left = right = false;
-        }
-    }*/
 }

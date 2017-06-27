@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RayCastController : MonoBehaviour {
-    public const float skinWidth = 0.0015f;
-    public BoxCollider collider;
+    public const float skinWidth = 0.015f;
+
 
     public int horizontalRayCount = 4;
     public int verticalRayCount = 4;
-
+    [HideInInspector]
     public RaycastOrigins raycastOrigins;
-
+    [HideInInspector]
     public float horizontalRaySpacing;
+    [HideInInspector]
     public float verticalRaySpacing;
+    [HideInInspector]
+    public BoxCollider collider;
 
-    private void Start()
+    public virtual void Start()
     {
         collider = GetComponent<BoxCollider>();
         calculateRaySpacing();
 
         //nextCharacter = transform.parent.transform.GetChild(1).gameObject;
     }
-
 
     public void UpdateRaycastOrigins()
     {

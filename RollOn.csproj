@@ -87,6 +87,7 @@
     <Compile Include="Assets\Scripts\CubeCharacter.cs" />
     <Compile Include="Assets\Scripts\ICharacter.cs" />
     <Compile Include="Assets\Scripts\InputController.cs" />
+    <Compile Include="Assets\Scripts\PlatformController.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\RayCastController.cs" />
     <Compile Include="Assets\Scripts\SphereCharacter.cs" />

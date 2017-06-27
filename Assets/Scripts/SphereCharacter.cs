@@ -19,7 +19,7 @@ public class SphereCharacter : MonoBehaviour, ICharacter
         nextCharacter = transform.parent.transform.GetChild(1).gameObject;
     }
 
-    public void movePlayer(Vector3 velocity)
+    public void movePlayer(Vector3 velocity, bool standingOnPlatform)
     {
         //rb.AddForce(new Vector3(input,0,0));
     }

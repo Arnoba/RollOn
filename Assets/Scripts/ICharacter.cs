@@ -4,7 +4,7 @@ using UnityEngine;
 
 interface ICharacter{
 
-    void movePlayer(Vector3 velocity);
+    void movePlayer(Vector3 velocity, bool standingOnPlatform);
     void jump();
     void attack();
     void swap();
