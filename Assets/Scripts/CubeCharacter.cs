@@ -14,24 +14,33 @@ public class CubeCharacter : RayCastController, ICharacter
     private float maxDescentAngle = 75;
 
     public CollisionInfo collisions;
+    private Vector2 playerInput;
 
     public override void Start()
     {
         base.Start();
+        collisions.faceDir = 1;
         //start in super class raycastcontroller followed  by mine
     }
+    public void movePlayer(Vector3 velocity, bool standingOnPlatform)
+    {
+        movePlayer(velocity, Vector2.zero, standingOnPlatform);
+    }
 
-    public void movePlayer(Vector3 velocity, bool standingOnPlatform = false)
+    public void movePlayer(Vector3 velocity, Vector2 input, bool standingOnPlatform = false)
     {
         collisions.reset();
-
         collisions.velocityOld = velocity;
+        playerInput = input;
+        if (velocity.x != 0)
+        {
+            collisions.faceDir = (int)Mathf.Sign(velocity.x);
+        }
 
         UpdateRaycastOrigins();
         if (velocity.y < 0)
             descendSlope(ref velocity);
-        if (velocity.x != 0)
-            horizontalCollision(ref velocity);
+        horizontalCollision(ref velocity);
         if(velocity.y !=0)
             verticalCollision(ref velocity);
 
@@ -60,6 +69,21 @@ public class CubeCharacter : RayCastController, ICharacter
 
             if (Physics.Raycast(rayOrigin, (Vector3.up * directionY), out hit, rayLength, collisionMask))
             {
+                if (hit.collider.tag.Equals("Through"))
+                {
+                    if(directionY == 1 || hit.distance == 0)
+                    {
+                        continue;
+                    }
+                    if (collisions.fallingThroughPlatform)
+                        continue;
+                    if(playerInput.y == -1)
+                    {
+                        collisions.fallingThroughPlatform = true;
+                        Invoke("resetFallingThroughPlatform", 0.10f);
+                        continue;
+                    }
+                }
 
                 if(hit.distance == 0)
                 {
@@ -101,8 +125,13 @@ public class CubeCharacter : RayCastController, ICharacter
     }
     public void horizontalCollision(ref Vector3 velocity)
     {
-        float directionX = Mathf.Sign(velocity.x);
+        float directionX = collisions.faceDir;
         float rayLength = Mathf.Abs(velocity.x) + skinWidth;
+
+        if(Mathf.Abs(velocity.x) < skinWidth)
+        {
+            rayLength = 2 * skinWidth;
+        }
 
         for (int i = 0; i < horizontalRayCount; i++)
         {
@@ -192,6 +221,11 @@ public class CubeCharacter : RayCastController, ICharacter
                 }
             }
         }
+    }
+
+    void resetFallingThroughPlatform()
+    {
+        collisions.fallingThroughPlatform = false;
     }
 
     public void attack()

@@ -24,6 +24,11 @@ public class SphereCharacter : MonoBehaviour, ICharacter
         //rb.AddForce(new Vector3(input,0,0));
     }
 
+    public void movePlayer(Vector3 velocity,Vector2 input, bool standingOnPlatform)
+    {
+        //rb.AddForce(new Vector3(input,0,0));
+    }
+
     public void attack()
     {
         throw new NotImplementedException();

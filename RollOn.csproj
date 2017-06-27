@@ -84,6 +84,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\CubeCharacter.cs" />
     <Compile Include="Assets\Scripts\ICharacter.cs" />
     <Compile Include="Assets\Scripts\InputController.cs" />

@@ -123,7 +123,7 @@ public class PlatformController : RayCastController {
                 rayOrigin += Vector3.right * (verticalRaySpacing * i);
                 RaycastHit hit;
                 Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
-                if (Physics.Raycast(rayOrigin, (Vector3.up * directionY), out hit, rayLength, passengerMask))
+                if (Physics.Raycast(rayOrigin, (Vector3.up * directionY), out hit, rayLength, passengerMask) && hit.distance !=0)
                 {
                     if (!movedPassengers.Contains(hit.transform))
                     {
@@ -149,7 +149,7 @@ public class PlatformController : RayCastController {
 
                 Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
 
-                if (Physics.Raycast(rayOrigin, Vector3.right * directionX, out hit, rayLength, passengerMask))
+                if (Physics.Raycast(rayOrigin, Vector3.right * directionX, out hit, rayLength, passengerMask) && hit.distance != 0)
                 {
                     if (!movedPassengers.Contains(hit.transform))
                     {
@@ -173,7 +173,7 @@ public class PlatformController : RayCastController {
                 Vector3 rayOrigin = raycastOrigins.topLeft + Vector3.right * (verticalRaySpacing * i);
                 RaycastHit hit;
                 Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
-                if (Physics.Raycast(rayOrigin, Vector3.up, out hit, rayLength, passengerMask))
+                if (Physics.Raycast(rayOrigin, Vector3.up, out hit, rayLength, passengerMask) && hit.distance != 0)
                 {
                     if (!movedPassengers.Contains(hit.transform))
                     {

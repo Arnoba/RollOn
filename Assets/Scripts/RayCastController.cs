@@ -17,12 +17,14 @@ public class RayCastController : MonoBehaviour {
     [HideInInspector]
     public BoxCollider collider;
 
-    public virtual void Start()
+    public virtual void Awake()
     {
         collider = GetComponent<BoxCollider>();
-        calculateRaySpacing();
-
         //nextCharacter = transform.parent.transform.GetChild(1).gameObject;
+    }
+    public virtual void Start()
+    {
+        calculateRaySpacing();
     }
 
     public void UpdateRaycastOrigins()

@@ -5,6 +5,7 @@ using UnityEngine;
 interface ICharacter{
 
     void movePlayer(Vector3 velocity, bool standingOnPlatform);
+    void movePlayer(Vector3 velocity,Vector2 input, bool standingOnPlatform);
     void jump();
     void attack();
     void swap();
@@ -19,6 +20,8 @@ public struct CollisionInfo
     public float slopeAngle, slopeAngleOld;
     public bool descendingSlope;
     public Vector3 velocityOld;
+    public int faceDir;
+    public bool fallingThroughPlatform;
 
     public void reset()
     {
