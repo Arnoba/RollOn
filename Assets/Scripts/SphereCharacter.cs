@@ -68,4 +68,8 @@ public class SphereCharacter : MonoBehaviour, ICharacter
             doubleJump = true;
         }
     }
+    public Vector2 getInput()
+    {
+        return new Vector2();
+    }
 }

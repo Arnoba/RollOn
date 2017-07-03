@@ -10,8 +10,7 @@ public class CubeCharacter : RayCastController, ICharacter
     private bool initJump = true;
     private GameObject nextCharacter;
 
-    private float maxClimbAngle = 80;
-    private float maxDescentAngle = 75;
+    public float maxSlopeAngle = 50;
 
     public CollisionInfo collisions;
     private Vector2 playerInput;
@@ -22,47 +21,50 @@ public class CubeCharacter : RayCastController, ICharacter
         collisions.faceDir = 1;
         //start in super class raycastcontroller followed  by mine
     }
-    public void movePlayer(Vector3 velocity, bool standingOnPlatform)
+    public void movePlayer(Vector3 moveAmount, bool standingOnPlatform)
     {
-        movePlayer(velocity, Vector2.zero, standingOnPlatform);
+        movePlayer(moveAmount, Vector2.zero, standingOnPlatform);
     }
 
-    public void movePlayer(Vector3 velocity, Vector2 input, bool standingOnPlatform = false)
+    public void movePlayer(Vector3 moveAmount, Vector2 input, bool standingOnPlatform = false)
     {
+        UpdateRaycastOrigins();
+
         collisions.reset();
-        collisions.velocityOld = velocity;
+        collisions.moveAmountOld = moveAmount;
         playerInput = input;
-        if (velocity.x != 0)
+        //Debug.Log(moveAmount.x);     
+        if (moveAmount.y < 0)
+            descendSlope(ref moveAmount);
+        if (moveAmount.x != 0)
         {
-            collisions.faceDir = (int)Mathf.Sign(velocity.x);
+            collisions.faceDir = (int)Mathf.Sign(moveAmount.x);
         }
 
-        UpdateRaycastOrigins();
-        if (velocity.y < 0)
-            descendSlope(ref velocity);
-        horizontalCollision(ref velocity);
-        if(velocity.y !=0)
-            verticalCollision(ref velocity);
+        horizontalCollision(ref moveAmount);
+        if(moveAmount.y !=0)
+            verticalCollision(ref moveAmount);
 
 
-        //transform.Translate(velocity);
-        transform.parent.transform.Translate(velocity);
-        //rb.AddForce(new Vector3(input, 0, 0), ForceMode.VelocityChange);
+        //transform.Translate(moveAmount);
+        transform.parent.transform.Translate(moveAmount);
+        //Debug.Log("Moveamount:" + moveAmount);
+        //rb.AddForce(new Vector3(input, 0, 0), ForceMode.moveAmountChange);
         if (standingOnPlatform)
         {
             collisions.below = true;
         }
     }
 
-    public void verticalCollision(ref Vector3 velocity)
+    public void verticalCollision(ref Vector3 moveAmount)
     {
-        float directionY = Mathf.Sign(velocity.y);
-        float rayLength = Mathf.Abs(velocity.y) + skinWidth;
+        float directionY = Mathf.Sign(moveAmount.y);
+        float rayLength = Mathf.Abs(moveAmount.y) + skinWidth;
 
         for (int i = 0; i < verticalRayCount; i++)
         {
             Vector3 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
-            rayOrigin += Vector3.right * (verticalRaySpacing * i + velocity.x);
+            rayOrigin += Vector3.right * (verticalRaySpacing * i + moveAmount.x);
             RaycastHit hit;            
 
             Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
@@ -90,13 +92,14 @@ public class CubeCharacter : RayCastController, ICharacter
                     continue;
                 }
 
-                velocity.y = (hit.distance - skinWidth) * directionY;
+                moveAmount.y = (hit.distance - skinWidth) * directionY;
                 rayLength = hit.distance;
 
                 //this.transform.parent.transform.rotation = Quaternion.Euler(0,0, angle);
                 if (collisions.climbingSlope)
                 {
-                    velocity.x = velocity.y/Mathf.Tan(collisions.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
+                    moveAmount.x = moveAmount.y/Mathf.Tan(collisions.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(moveAmount.x);
+                    Debug.Log("climgingslops");
                 }
 
                 collisions.above = directionY == 1;
@@ -106,9 +109,9 @@ public class CubeCharacter : RayCastController, ICharacter
 
         if (collisions.climbingSlope)
         {
-            float directionX = Mathf.Sign(velocity.x);
-            rayLength = Mathf.Abs(velocity.x) + skinWidth;
-            Vector3 RayOrigin = ((directionX == -1)?raycastOrigins.bottomLeft:raycastOrigins.bottomRight)+Vector3.up * velocity.y;
+            float directionX = Mathf.Sign(moveAmount.x);
+            rayLength = Mathf.Abs(moveAmount.x) + skinWidth;
+            Vector3 RayOrigin = ((directionX == -1)?raycastOrigins.bottomLeft:raycastOrigins.bottomRight)+Vector3.up * moveAmount.y;
             RaycastHit hit;
 
             if (Physics.Raycast(RayOrigin, (Vector3.up*directionY), out hit, rayLength, collisionMask))
@@ -117,18 +120,18 @@ public class CubeCharacter : RayCastController, ICharacter
 
                 if(slopeAngle != collisions.slopeAngle)
                 {
-                    velocity.x = (hit.distance - skinWidth) * directionX;
+                    moveAmount.x = (hit.distance - skinWidth) * directionX;
                     collisions.slopeAngle = slopeAngle;
                 }
             }
         }
     }
-    public void horizontalCollision(ref Vector3 velocity)
+    public void horizontalCollision(ref Vector3 moveAmount)
     {
         float directionX = collisions.faceDir;
-        float rayLength = Mathf.Abs(velocity.x) + skinWidth;
+        float rayLength = Mathf.Abs(moveAmount.x) + skinWidth;
 
-        if(Mathf.Abs(velocity.x) < skinWidth)
+        if(Mathf.Abs(moveAmount.x) < skinWidth)
         {
             rayLength = 2 * skinWidth;
         }
@@ -144,12 +147,12 @@ public class CubeCharacter : RayCastController, ICharacter
             if (Physics.Raycast(rayOrigin, Vector3.right * directionX, out hit, rayLength, collisionMask))
             {
                 float angle = Vector3.Angle(hit.normal, Vector3.up);
-                if (i == 0 && angle <= maxClimbAngle)
+                if (i == 0 && angle <= maxSlopeAngle)
                 {
                     if (collisions.descendingSlope)
                     {
                         collisions.descendingSlope = false;
-                        velocity = collisions.velocityOld;
+                        moveAmount = collisions.moveAmountOld;
                     }
                     
                     //Debug.Log("callign climbSlope");
@@ -157,69 +160,89 @@ public class CubeCharacter : RayCastController, ICharacter
                     if(angle != collisions.slopeAngleOld)
                     {
                         distanceToSlopeStart = hit.distance - skinWidth;
-                        velocity.x -= distanceToSlopeStart * directionX;
+                        moveAmount.x -= distanceToSlopeStart * directionX;
                     }
-                    climbSlope(ref velocity, angle);
-                    velocity.x += distanceToSlopeStart * directionX;
+                    climbSlope(ref moveAmount, angle);
+                    moveAmount.x += distanceToSlopeStart * directionX;
                 }
 
 
-                if (!collisions.climbingSlope || angle > maxClimbAngle)
+                if (!collisions.climbingSlope || angle > maxSlopeAngle)
                 {
-                    velocity.x = (hit.distance - skinWidth) * directionX;
-                    rayLength = hit.distance + skinWidth;
+                    moveAmount.x = (hit.distance - skinWidth) * directionX;
+                    rayLength = hit.distance;
 
                     if (collisions.climbingSlope)
                     {
-                        velocity.y = Mathf.Tan(collisions.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x);
+                        moveAmount.y = Mathf.Tan(collisions.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(moveAmount.x);
                     }
-
-                    collisions.right = directionX == 1;
                     collisions.left = directionX == -1;
+                    collisions.right = directionX == 1;
                 }
             }
         }
     }
-    void climbSlope(ref Vector3 velocity, float angle)
+    void climbSlope(ref Vector3 moveAmount, float angle)
     {
-        float maxDistance = Mathf.Abs(velocity.x);
-        float climbVelocityY = Mathf.Sin(angle * Mathf.Deg2Rad) * maxDistance;
-        if(velocity.y <= climbVelocityY)
+        float maxDistance = Mathf.Abs(moveAmount.x);
+        float climbmoveAmountY = Mathf.Sin(angle * Mathf.Deg2Rad) * maxDistance;
+        if(moveAmount.y <= climbmoveAmountY)
         {
-            velocity.y = climbVelocityY;
-            velocity.x = Mathf.Cos(angle * Mathf.Deg2Rad) * maxDistance * Mathf.Sign(velocity.x);
+            moveAmount.y = climbmoveAmountY;
+            moveAmount.x = Mathf.Cos(angle * Mathf.Deg2Rad) * maxDistance * Mathf.Sign(moveAmount.x);
             collisions.below = true;
             collisions.climbingSlope = true;
             collisions.slopeAngle = angle;
         }
     }
-    void descendSlope(ref Vector3 velocity)
+    void descendSlope(ref Vector3 moveAmount)
     {
-        float directionX = Mathf.Sign(velocity.x);
-        Debug.Log(directionX);
+        float directionX = Mathf.Sign(moveAmount.x);
+        //Debug.Log(directionX);
         Vector3 rayOrigin = (directionX == -1) ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft;
         RaycastHit hit;
 
-        if (Physics.Raycast(rayOrigin, Vector3.up * Mathf.Sign(velocity.y), out hit, Mathf.Infinity, collisionMask))
-        {
-            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
-            if (slopeAngle != 0 && slopeAngle <= maxDescentAngle)
-            {
-                if(Mathf.Sign(hit.normal.x) == directionX)
-                {
-                    if(hit.distance - skinWidth <= Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x))
-                    {
-                        float moveDistance = Mathf.Abs(velocity.x);
-                        float descendVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
-                        velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x);
-                        velocity.y -= descendVelocityY;
 
-                        collisions.slopeAngle = slopeAngle;
-                        collisions.descendingSlope = true;
-                        collisions.below = true;
+        if (Physics.Raycast(raycastOrigins.bottomLeft, Vector3.down, out hit, Mathf.Abs(moveAmount.y) + skinWidth, collisionMask))
+            SlideDownMaxSlope(hit, ref moveAmount);
+        if (Physics.Raycast(raycastOrigins.bottomRight, Vector3.down, out hit, Mathf.Abs(moveAmount.y) + skinWidth, collisionMask))
+            SlideDownMaxSlope(hit, ref moveAmount);
+
+        if (!collisions.slidingDownSlope)
+        {
+            if (Physics.Raycast(rayOrigin, Vector3.up * Mathf.Sign(moveAmount.y), out hit, Mathf.Infinity, collisionMask))
+            {
+                float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+                if (slopeAngle != 0 && slopeAngle <= maxSlopeAngle)
+                {
+                    if (Mathf.Sign(hit.normal.x) == directionX)
+                    {
+                        if (hit.distance - skinWidth <= Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(moveAmount.x))
+                        {
+                            float moveDistance = Mathf.Abs(moveAmount.x);
+                            float descendmoveAmountY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
+                            moveAmount.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(moveAmount.x);
+                            moveAmount.y -= descendmoveAmountY;
+
+                            collisions.slopeAngle = slopeAngle;
+                            collisions.descendingSlope = true;
+                            collisions.below = true;
+                        }
                     }
                 }
             }
+        }
+    }
+
+    void SlideDownMaxSlope(RaycastHit hit, ref Vector3 moveAmount)
+    {
+        float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+        
+        if (slopeAngle > maxSlopeAngle)
+        {
+            moveAmount.x = hit.normal.x * (Mathf.Abs(moveAmount.y) - hit.distance) / Mathf.Tan(slopeAngle * Mathf.Deg2Rad);
+            collisions.slopeAngle = slopeAngle;
+            collisions.slidingDownSlope = true;
         }
     }
 
@@ -251,15 +274,8 @@ public class CubeCharacter : RayCastController, ICharacter
     {
         return collisions;
     }
-
-    private void OnCollisionEnter(Collision collision)
+    public Vector2 getInput()
     {
-        Debug.Log("Collision");
-        if (collision.gameObject.tag.Equals("Ground"))
-        {
-            Debug.Log("Collision ground");
-            initJump = true;
-            //doubleJump = true;
-        }
+        return playerInput;
     }
 }

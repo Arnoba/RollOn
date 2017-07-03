@@ -2,23 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent (typeof (Player))]
 public class InputController : MonoBehaviour {
     GameObject activeMode;
     private ICharacter activeCharacter;
+    Player player;
 
 	// Use this for initialization
 	void Start () {
-        activeCharacter = GetComponentInChildren<SphereCharacter>();
+        //activeCharacter = GetComponentInChildren<SphereCharacter>();
+        player = GetComponent<Player>();
     }
 	
-	// Update is called once per frame
-	void FixedUpdate () {
-        //Movement
-       // activeCharacter.movePlayer(Input.GetAxis("Horizontal"));
-        //Jump
+    private void Update()
+    {
+        Vector2 directionalInput = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        player.setDirectionalInput(directionalInput);
+
         if (Input.GetButtonDown("Jump"))
         {
-            activeCharacter.jump();
+            player.onJumpInputDown();
         }
-	}
+        if (Input.GetButtonUp("Jump"))
+        {
+            player.onJumpInputUp();
+        }
+    }
 }

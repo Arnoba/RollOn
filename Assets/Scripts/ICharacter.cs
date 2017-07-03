@@ -10,6 +10,7 @@ interface ICharacter{
     void attack();
     void swap();
     CollisionInfo getCollisions();
+    Vector2 getInput();
 }
 
 public struct CollisionInfo
@@ -19,9 +20,10 @@ public struct CollisionInfo
     public bool climbingSlope;
     public float slopeAngle, slopeAngleOld;
     public bool descendingSlope;
-    public Vector3 velocityOld;
+    public Vector3 moveAmountOld;
     public int faceDir;
     public bool fallingThroughPlatform;
+    public bool slidingDownSlope;
 
     public void reset()
     {
@@ -31,5 +33,6 @@ public struct CollisionInfo
         descendingSlope = false;
         slopeAngleOld = slopeAngle;
         slopeAngle = 0;
+        slidingDownSlope = false;
     }
 }
