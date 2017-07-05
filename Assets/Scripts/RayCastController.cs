@@ -15,11 +15,11 @@ public class RayCastController : MonoBehaviour {
     [HideInInspector]
     public float verticalRaySpacing;
     [HideInInspector]
-    public BoxCollider collider;
+    public Collider collider;
 
     public virtual void Awake()
     {
-        collider = GetComponent<BoxCollider>();
+        collider = GetComponent<Collider>();
         //nextCharacter = transform.parent.transform.GetChild(1).gameObject;
     }
     public virtual void Start()

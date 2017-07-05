@@ -27,5 +27,9 @@ public class InputController : MonoBehaviour {
         {
             player.onJumpInputUp();
         }
+        if (Input.GetButtonDown("Dash"))
+        {
+            player.dash();
+        }
     }
 }

@@ -12,6 +12,7 @@ public class Player : MonoBehaviour {
     public float maxJumpHeight = 2f;
     public float minJumpHeight = 1f;
     public float timeToJumpApex = 0.4f;
+    public float dashBoost;
 
     public float wallSlideSpeedMax = 3;
     public float wallStickTime = 0.25f;
@@ -19,7 +20,7 @@ public class Player : MonoBehaviour {
 
     private Vector3 velocity;
     private float gravity;
-    private float moveSpeed = 2f;
+    private float moveSpeed = 4f;
     private float maxJumpVelocity;
     private float minJumpVelocity;
     private float velocityXSmoothing;
@@ -39,6 +40,7 @@ public class Player : MonoBehaviour {
         gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
+        Debug.Log(maxJumpVelocity);
 	}
     void Update()
     {
@@ -89,7 +91,15 @@ public class Player : MonoBehaviour {
         if (velocity.y > minJumpVelocity)
             velocity.y = minJumpVelocity;
     }
-	// Update is called once per frame
+	// testing mechanics
+    public void dash()
+    {
+        if (!currentCharacter.getCollisions().below && currentCharacter.getCollisions().dash)
+        {
+            dashBoost = 200 * directionalInput.x;
+            currentCharacter.dash();
+        }
+    }
 
     void handleWallSliding()
     {
@@ -126,7 +136,8 @@ public class Player : MonoBehaviour {
     }
     void calculateVelocity()
     {
-        float targetVelocityX = directionalInput.x * moveSpeed;
+        float targetVelocityX = directionalInput.x * moveSpeed + dashBoost;
+        dashBoost = 0;
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (currentCharacter.getCollisions().below) ? accelerationTimeGrounded : accelerationTimeAirborne);
         //Debug.Log(velocity.x);
         velocity.y += gravity * Time.deltaTime;

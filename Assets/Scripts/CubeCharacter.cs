@@ -104,6 +104,8 @@ public class CubeCharacter : RayCastController, ICharacter
 
                 collisions.above = directionY == 1;
                 collisions.below = directionY == -1;
+                if (collisions.below)
+                    collisions.dash = true;
             }
         }
 
@@ -255,7 +257,13 @@ public class CubeCharacter : RayCastController, ICharacter
     {
         //throw new NotImplementedException();
     }
-
+    /// <summary>
+    /// Testing Mechanics 
+    /// </summary>
+    public void dash()
+    {
+        collisions.dash = false;
+    }
     public void jump()
     {
         if (initJump)

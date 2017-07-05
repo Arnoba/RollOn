@@ -9,6 +9,7 @@ interface ICharacter{
     void jump();
     void attack();
     void swap();
+    void dash();
     CollisionInfo getCollisions();
     Vector2 getInput();
 }
@@ -24,6 +25,7 @@ public struct CollisionInfo
     public int faceDir;
     public bool fallingThroughPlatform;
     public bool slidingDownSlope;
+    public bool dash;
 
     public void reset()
     {
