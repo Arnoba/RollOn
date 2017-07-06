@@ -6,3 +6,7 @@ Jumping, Wall Jumping
 Dashing
 
 
+Character Controller is a modification of Sebastian Lague 2D Platformer Controller tutorial series which can be found at https://www.youtube.com/playlist?list=PLFt_AvWsXl0f0hqURlhyIoAabKPgRsqjz
+
+
+
